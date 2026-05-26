@@ -4,6 +4,10 @@ using BloggerAPI.DTOs.Auth;
 using BloggerAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace BloggerAPI.Controllers
@@ -14,10 +18,12 @@ namespace BloggerAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ApiDbContext _context;
+        private readonly IConfiguration _config;
 
-        public AuthController(ApiDbContext context)
+        public AuthController(ApiDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;   
         }
 
         // POST: api/Auth/register
@@ -70,18 +76,41 @@ namespace BloggerAPI.Controllers
                 return Unauthorized(new { message = "Username atau password salah." });
             }
 
-            var response = new UserResponseDto
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]!);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.Username,
-                DateOfBirth = user.DateOfBirth,
-                JoinDate = user.JoinDate,
-                Photo = user.Photo
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username)
+                }),
+                Expires = DateTime.UtcNow.AddHours(2), // Token berlaku 7 hari
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature
+                ),
+                Issuer = _config["Jwt:Issuer"],
+                Audience = _config["Jwt:Audience"]
             };
 
-            return Ok(response);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return Ok(new LoginResponseDto
+            {
+                Token = tokenString,
+                User = new UserResponseDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Username = user.Username,
+                    JoinDate = user.JoinDate,
+                    Photo = user.Photo
+                }
+            });
         }
     }
 }
