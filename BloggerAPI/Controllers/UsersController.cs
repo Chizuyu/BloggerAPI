@@ -27,9 +27,10 @@ namespace BloggerAPI.Controllers
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     Username = u.Username,
+                    Password = u.PasswordHash,
                     DateOfBirth = u.DateOfBirth,
                     JoinDate = u.JoinDate,
-                    Photo = u.Photo
+                    Photo = Path.GetFileName(u.Photo)
                 }).ToListAsync();
         }
 
