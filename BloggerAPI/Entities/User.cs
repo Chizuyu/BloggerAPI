@@ -10,5 +10,6 @@ namespace BloggerAPI.Entities
         public DateTime? DateOfBirth { get; set; }
         public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public string? Photo { get; set; }
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }
