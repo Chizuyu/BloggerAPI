@@ -8,7 +8,6 @@ using BloggerAPI.Entities;
 namespace BloggerAPI.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class CategoriesController : ControllerBase
     {

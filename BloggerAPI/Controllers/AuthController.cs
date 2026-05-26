@@ -86,7 +86,7 @@ namespace BloggerAPI.Controllers
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username)
                 }),
-                Expires = DateTime.UtcNow.AddHours(2), // Token berlaku 7 hari
+                Expires = DateTime.UtcNow.AddDays(7), // Token berlaku 7 hari
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature
