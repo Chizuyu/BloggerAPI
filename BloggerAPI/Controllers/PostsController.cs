@@ -69,31 +69,13 @@ namespace BloggerAPI.Controllers
             ));
         }
 
-        //POST: 
-        [HttpPost("{postId}/thumbnail")]
-        public async Task<IActionResult> UploadThumbnail(Guid postId, IFormFile file)
+        // GET /api/posts/{postId}/total-count
+        [HttpGet("{postId}/total-count")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTotalCount(Guid postId)
         {
-            var post = await _postRepo.GetByIdAsync(postId);
-            if (post == null) return NotFound("Post tidak ditemukan");
-
-            // Validasi file (Opsional tapi disarankan)
-            if (file == null || file.Length == 0) return BadRequest("File tidak valid");
-
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/thumbnails");
-            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(folderPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            post.Thumbnail = $"/uploads/thumbnails/{fileName}";
-            await _postRepo.SaveChangesAsync();
-
-            return Ok(new { thumbnail_url = post.Thumbnail });
+            var count = await _postRepo.GetLikeCountAsync(postId);
+            return Ok(new { total_likes = count });
         }
 
         // GET /api/posts/{id}
@@ -143,13 +125,31 @@ namespace BloggerAPI.Controllers
             return NoContent();
         }
 
-        // GET /api/posts/{postId}/total-count
-        [HttpGet("{postId}/total-count")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetTotalCount(Guid postId)
+        //POST: 
+        [HttpPost("{postId}/thumbnail")]
+        public async Task<IActionResult> UploadThumbnail(Guid postId, IFormFile file)
         {
-            var count = await _postRepo.GetLikeCountAsync(postId);
-            return Ok(new { total_likes = count });
+            var post = await _postRepo.GetByIdAsync(postId);
+            if (post == null) return NotFound("Post tidak ditemukan");
+
+            // Validasi file (Opsional tapi disarankan)
+            if (file == null || file.Length == 0) return BadRequest("File tidak valid");
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/thumbnails");
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            post.Thumbnail = $"/uploads/thumbnails/{fileName}";
+            await _postRepo.SaveChangesAsync();
+
+            return Ok(new { thumbnail_url = post.Thumbnail });
         }
 
         // POST /api/posts/like
