@@ -62,5 +62,32 @@ namespace BloggerAPI.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        //POST: api/Me/photo
+
+        [HttpPost("photo")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadPhoto([FromForm] UserPhotoUploadDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/users");
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Photo.FileName)}";
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Photo.CopyToAsync(stream);
+            }
+
+            user.Photo = $"/uploads/users/{fileName}";
+            await _context.SaveChangesAsync();
+
+            return Ok(new { photo_url = user.Photo });
+        }
     }
 }
