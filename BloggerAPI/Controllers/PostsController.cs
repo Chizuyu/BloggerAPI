@@ -111,7 +111,7 @@ namespace BloggerAPI.Controllers
         public async Task<IActionResult> GetTotalCount(Guid postId)
         {
             var count = await _postRepo.GetLikeCountAsync(postId);
-            return Ok(new { total_likes = count });
+            return Ok(new { count = count });
         }
 
         // GET /api/posts/{id}
