@@ -109,8 +109,8 @@ namespace BloggerAPI.Controllers
                         p.UserId,
                         p.Title,
                         p.Content,
-                        p.Thumbnail,
-                        p.ImageContent,
+                        GetFileNameOnly(p.Thumbnail),
+                        GetFileNameOnly(p.ImageContent),
                         p.CreatedAt,
                         0,
                         new UserResponseDto
@@ -119,7 +119,7 @@ namespace BloggerAPI.Controllers
                             Username = p.User.Username,
                             FirstName = p.User.FirstName,
                             LastName = p.User.LastName,
-                            Photo = p.User.Photo
+                            Photo = GetFileNameOnly(p.User.Photo)
                         },
                         new CategoryResponseDto(
                             p.Category!.Id,
@@ -151,15 +151,15 @@ namespace BloggerAPI.Controllers
                         p.UserId,
                         p.Title,
                         p.Content,
-                        p.Thumbnail,
-                        p.ImageContent,
+                        GetFileNameOnly(p.Thumbnail),
+                        GetFileNameOnly(p.ImageContent),
                         p.CreatedAt,
                         0,
                         new UserResponseDto
                         {
                             Id = p.User!.Id,
                             Username = p.User.Username,
-                            FirstName = p.User.FirstName,
+                            FirstName = GetFileNameOnly(p.User.FirstName),
                             LastName = p.User.LastName,
                             Photo = p.User.Photo
                         },

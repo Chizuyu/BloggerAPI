@@ -243,6 +243,15 @@ namespace BloggerAPI.Controllers
         public async Task<IActionResult> LikePost(PostLikeRequestDto dto)
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var post = await _postRepo.GetByIdAsync(dto.PostId);
+            if (post == null) return NotFound("Postingan tidak ditemukan");
+
+            if (post.UserId == userId)
+            {
+                return BadRequest(new { message = "Anda tidak dapat menyukai postingan Anda sendiri" });
+            }
+
             var isLiked = await _postRepo.ToggleLikeAsync(dto.PostId, userId);
             await _postRepo.SaveChangesAsync();
 
