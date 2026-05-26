@@ -1,12 +1,13 @@
 using BloggerAPI.DTOs;
+using BloggerAPI.DTOs;
+using BloggerAPI.DTOs.Auth;
 using BloggerAPI.Entities;
+using BloggerAPI.Entities;      
 using BloggerAPI.Repositories;
+using BloggerAPI.Repositories;  
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using BloggerAPI.Entities;      
-using BloggerAPI.Repositories;  
-using BloggerAPI.DTOs;
 
 namespace BloggerAPI.Controllers
 {
@@ -86,9 +87,22 @@ namespace BloggerAPI.Controllers
             var p = await _postRepo.GetByIdAsync(id);
             if (p == null) return NotFound();
 
+            var likeCount = await _postRepo.GetLikeCountAsync(p.Id);
+
+            // Mapping agar persis seperti yang diminta Android
             return Ok(new PostResponseDto(
-                p.Id, p.Title, p.Content, p.Thumbnail,
-                p.Category?.Name ?? "", p.User?.Username ?? "", p.CreatedAt
+                p.Id, p.CategoryId, p.UserId, p.Title, p.Content, p.Thumbnail, p.ImageContent,
+                p.CreatedAt, // Mapping ke 'Date'
+                likeCount,
+                new UserResponseDto
+                { // Mapping ke objek 'User'
+                    Id = p.User!.Id,
+                    Username = p.User.Username,
+                    FirstName = p.User.FirstName,
+                    LastName = p.User.LastName,
+                    Photo = p.User.Photo
+                },
+                new CategoryResponseDto { Id = p.Category!.Id, Name = p.Category.Name }
             ));
         }
 
@@ -119,6 +133,10 @@ namespace BloggerAPI.Controllers
         {
             var post = await _postRepo.GetByIdAsync(id);
             if (post == null) return NotFound();
+
+            // PROTEKSI: Cek apakah yang menghapus adalah pemiliknya
+            var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (post.UserId != currentUserId) return Forbid(); // Android akan terima error 403
 
             await _postRepo.DeleteAsync(post);
             await _postRepo.SaveChangesAsync();
