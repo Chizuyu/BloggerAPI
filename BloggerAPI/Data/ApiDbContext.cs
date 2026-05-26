@@ -10,5 +10,7 @@ namespace BloggerAPI.Data
 
         }
         public DbSet<Category> Categories { get; set; }
+
+        public DbSet<User> Users { get; set; }
     }
 }
