@@ -1,4 +1,4 @@
-namespace BloggerAPI.Models
+namespace BloggerAPI.Entities
 {
     public class Category
     {

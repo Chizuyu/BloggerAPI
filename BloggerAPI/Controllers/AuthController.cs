@@ -1,7 +1,7 @@
 using BCrypt.Net;
 using BloggerAPI.Data;
 using BloggerAPI.DTOs.Auth;
-using BloggerAPI.Models;
+using BloggerAPI.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;

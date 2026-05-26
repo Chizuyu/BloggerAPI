@@ -2,10 +2,13 @@ using BloggerAPI.Data;
 using BloggerAPI.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using BloggerAPI.Entities;
 
 namespace BloggerAPI.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -53,7 +56,7 @@ namespace BloggerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto categoryDto)
         {
-            var category = new Models.Category
+            var category = new Category
             {
                 Id = Guid.NewGuid(),
                 Name = categoryDto.Name

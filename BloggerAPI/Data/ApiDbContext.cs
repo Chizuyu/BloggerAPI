@@ -1,4 +1,4 @@
-using BloggerAPI.Models;
+using BloggerAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BloggerAPI.Data
