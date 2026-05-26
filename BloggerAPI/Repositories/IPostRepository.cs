@@ -2,7 +2,7 @@ using BloggerAPI.Entities;
 
 namespace BloggerAPI.Repositories
 {
-    public interface IPostRepositories
+    public interface IPostRepository
     {
         Task<IEnumerable<Post>> GetAllAsync(string? title, Guid? categoryId);
         Task<Post?> GetByIdAsync(Guid id);
