@@ -154,12 +154,14 @@ namespace BloggerAPI.Controllers
 
         [HttpPost("{postId}/image")]
         [Consumes("multipart/form-data")] 
-        public async Task<IActionResult> UploadImageContent(Guid postId, [FromForm] IFormFile photo)
+        public async Task<IActionResult> UploadImageContent(Guid postId, [FromForm] PostImageUploadDto dto)
         {
+            var photo = dto.Photo;
+
             var post = await _postRepo.GetByIdAsync(postId);
             if (post == null) return NotFound("Post tidak ditemukan");
 
-            if (photo == null || photo.Length == 0) return BadRequest("File 'photo' tidak ditemukan");
+            if (photo == null || photo.Length == 0) return BadRequest("File 'photo' kosong");
 
             var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/posts");
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
@@ -175,11 +177,7 @@ namespace BloggerAPI.Controllers
             post.ImageContent = $"/uploads/posts/{fileName}";
             await _postRepo.SaveChangesAsync();
 
-            return Ok(new
-            {
-                message = "Image content berhasil diupload",
-                url = post.ImageContent
-            });
+            return Ok(new { url = post.ImageContent });
         }
 
         // POST /api/posts/like

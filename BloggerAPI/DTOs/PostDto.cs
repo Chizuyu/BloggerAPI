@@ -24,4 +24,10 @@ namespace BloggerAPI.DTOs
     public record PostLikeRequestDto(
         Guid PostId
     );
+
+    public class PostImageUploadDto
+    {
+        [Required]
+        public IFormFile Photo { get; set; } = null!;
+    }
 }
