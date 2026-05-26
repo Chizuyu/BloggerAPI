@@ -81,5 +81,19 @@ namespace BloggerAPI.Controllers
 
             return NoContent();
         }
+
+        //DELETE: api/Categories/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
