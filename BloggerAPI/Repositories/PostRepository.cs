@@ -37,6 +37,24 @@ namespace BloggerAPI.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<int> GetLikeCountAsync(Guid postId)
+        => await _context.Set<PostLike>().CountAsync(l => l.PostId == postId);
+
+        public async Task<bool> ToggleLikeAsync(Guid postId, Guid userId)
+        {
+            var existingLike = await _context.Set<PostLike>()
+                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
+
+            if (existingLike != null)
+            {
+                _context.Set<PostLike>().Remove(existingLike);
+                return false; // Unlike
+            }
+
+            await _context.Set<PostLike>().AddAsync(new PostLike { PostId = postId, UserId = userId });
+            return true; // Like
+        }
+
         public async Task CreateAsync(Post post) => await _context.Posts.AddAsync(post);
         public async Task UpdateAsync(Post post) => _context.Posts.Update(post);
         public async Task DeleteAsync(Post post) => _context.Posts.Remove(post);

@@ -10,5 +10,7 @@ namespace BloggerAPI.Repositories
         Task UpdateAsync(Post post);
         Task DeleteAsync(Post post);
         Task SaveChangesAsync();
+        Task<int> GetLikeCountAsync(Guid postId);
+        Task<bool> ToggleLikeAsync(Guid postId, Guid userId);
     }
 }
