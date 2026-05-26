@@ -17,6 +17,7 @@ namespace BloggerAPI.Controllers
 
         public MeController(ApiDbContext context) => _context = context;
 
+        //GET: api/Me
         [HttpGet]
         public async Task<ActionResult<UserResponseDto>> GetMe()
         {
@@ -35,6 +36,31 @@ namespace BloggerAPI.Controllers
                 JoinDate = user.JoinDate,
                 Photo = user.Photo
             });
+        }
+
+        //PUT: api/Me
+        [HttpPut]
+        public async Task<IActionResult> UpdateProfile(UpdateUserDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(dto.FirstName)) user.FirstName = dto.FirstName;
+            if (!string.IsNullOrEmpty(dto.LastName)) user.LastName = dto.LastName;
+
+            if (!string.IsNullOrEmpty(dto.Username) && dto.Username != user.Username)
+            {
+                if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+                    return BadRequest("Username sudah digunakan.");
+                user.Username = dto.Username;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Password))
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
