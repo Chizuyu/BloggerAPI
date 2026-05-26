@@ -20,6 +20,7 @@ namespace BloggerAPI.Controllers
             _context = context;
         }
 
+        // POST: api/Auth/register
         [HttpPost("register")]
         public async Task<ActionResult<UserResponseDto>> Register(RegisterDto registerDto)
         {
@@ -53,6 +54,31 @@ namespace BloggerAPI.Controllers
                 Username = user.Username,
                 DateOfBirth = user.DateOfBirth,
                 JoinDate = user.JoinDate
+            };
+
+            return Ok(response);
+        }
+
+        // POST: api/Auth/login
+        [HttpPost("login")]
+        public async Task<ActionResult<UserResponseDto>> Login(LoginDto loginDto)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == loginDto.Username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            {
+                return Unauthorized(new { message = "Username atau password salah." });
+            }
+
+            var response = new UserResponseDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username,
+                DateOfBirth = user.DateOfBirth,
+                JoinDate = user.JoinDate,
+                Photo = user.Photo
             };
 
             return Ok(response);
