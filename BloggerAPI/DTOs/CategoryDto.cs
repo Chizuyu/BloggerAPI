@@ -2,7 +2,7 @@ namespace BloggerAPI.DTOs
 {
     public class CategoryDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }
