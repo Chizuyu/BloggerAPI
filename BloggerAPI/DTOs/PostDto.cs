@@ -20,4 +20,8 @@ namespace BloggerAPI.DTOs
         string AuthorName,
         DateTime CreatedAt
     );
+
+    public record PostLikeRequestDto(
+        Guid PostId
+    );
 }

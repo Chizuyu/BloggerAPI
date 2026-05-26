@@ -142,5 +142,25 @@ namespace BloggerAPI.Controllers
             await _postRepo.SaveChangesAsync();
             return NoContent();
         }
+
+        // GET /api/posts/{postId}/total-count
+        [HttpGet("{postId}/total-count")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTotalCount(Guid postId)
+        {
+            var count = await _postRepo.GetLikeCountAsync(postId);
+            return Ok(new { total_likes = count });
+        }
+
+        // POST /api/posts/like
+        [HttpPost("like")]
+        public async Task<IActionResult> LikePost(PostLikeRequestDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var isLiked = await _postRepo.ToggleLikeAsync(dto.PostId, userId);
+            await _postRepo.SaveChangesAsync();
+
+            return Ok(new { liked = isLiked });
+        }
     }
 }
