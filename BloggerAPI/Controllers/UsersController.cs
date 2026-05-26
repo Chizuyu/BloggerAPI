@@ -33,6 +33,30 @@ namespace BloggerAPI.Controllers
                 }).ToListAsync();
         }
 
+        //GET: api/Users/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponseDto>> GetUser(Guid id)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new UserResponseDto
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Username = u.Username,
+                    DateOfBirth = u.DateOfBirth,
+                    JoinDate = u.JoinDate,
+                    Photo = u.Photo
+                })
+                .SingleOrDefaultAsync();
 
+            if (user == null)
+            {
+                return NotFound(new { message = "User tidak ditemukan" });
+            }
+
+            return Ok(user);
+        }
     }
 }
