@@ -1,10 +1,11 @@
-using System.Security.Claims;
 using BloggerAPI.Data;
-using BloggerAPI.DTOs.Auth;
 using BloggerAPI.DTOs;
+using BloggerAPI.DTOs.Auth;
+using BloggerAPI.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BloggerAPI.Controllers
 {
@@ -132,6 +133,17 @@ namespace BloggerAPI.Controllers
                     )
                 )
             );
+        }
+
+        //GET: /api/me/is-liked-post/{postId}
+        [HttpGet("is-liked-post/{postId}")]
+        public async Task<IActionResult> CheckIsLiked(Guid postId)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var isLiked = await _context.Set<PostLike>()
+                .AnyAsync(l => l.PostId == postId && l.UserId == userId);
+
+            return Ok(new { is_liked = isLiked });
         }
     }
 }
