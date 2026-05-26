@@ -1,3 +1,4 @@
+using BloggerAPI.DTOs.Auth;
 using System.ComponentModel.DataAnnotations;
 
 namespace BloggerAPI.DTOs
@@ -13,12 +14,16 @@ namespace BloggerAPI.DTOs
 
     public record PostResponseDto(
         Guid Id,
-        string Title,
-        string Content,
+        Guid CategoryId,
+        Guid UserId,
+        string? Title,
+        string? Content,
         string? Thumbnail,
-        string CategoryName,
-        string AuthorName,
-        DateTime CreatedAt
+        string? ImageContent,
+        DateTime Date, 
+        int LikeCount,
+        UserResponseDto User,
+        CategoryResponseDto Category 
     );
 
     public record PostLikeRequestDto(
