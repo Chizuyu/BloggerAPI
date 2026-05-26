@@ -11,6 +11,7 @@ namespace BloggerAPI.Entities
         [Required]
         public string Content { get; set; } = string.Empty;
         public string? Thumbnail { get; set; }
+        public string? ImageContent { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -21,5 +22,6 @@ namespace BloggerAPI.Entities
         public User? User { get; set; }
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<PostLike> Likes { get; set; } = new List<PostLike>();
     }
 }
