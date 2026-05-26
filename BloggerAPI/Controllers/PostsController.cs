@@ -19,6 +19,8 @@ namespace BloggerAPI.Controllers
 
         public PostsController(IPostRepository postRepo) => _postRepo = postRepo;
 
+
+        //GET: 
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<PostResponseDto>>> GetPosts([FromQuery] string? title, [FromQuery] Guid? categoryId)
@@ -38,6 +40,7 @@ namespace BloggerAPI.Controllers
             return Ok(response);
         }
 
+        //POST: 
         [HttpPost]
         public async Task<ActionResult<PostResponseDto>> Create(PostCreateDto dto)
         {
@@ -64,6 +67,33 @@ namespace BloggerAPI.Controllers
                 createdPost!.Id, createdPost.Title, createdPost.Content, createdPost.Thumbnail,
                 createdPost.Category?.Name ?? "", createdPost.User?.Username ?? "", createdPost.CreatedAt
             ));
+        }
+
+        //POST: 
+        [HttpPost("{postId}/thumbnail")]
+        public async Task<IActionResult> UploadThumbnail(Guid postId, IFormFile file)
+        {
+            var post = await _postRepo.GetByIdAsync(postId);
+            if (post == null) return NotFound("Post tidak ditemukan");
+
+            // Validasi file (Opsional tapi disarankan)
+            if (file == null || file.Length == 0) return BadRequest("File tidak valid");
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/thumbnails");
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            post.Thumbnail = $"/uploads/thumbnails/{fileName}";
+            await _postRepo.SaveChangesAsync();
+
+            return Ok(new { thumbnail_url = post.Thumbnail });
         }
     }
 }
