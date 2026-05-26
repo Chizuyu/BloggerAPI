@@ -102,9 +102,33 @@ namespace BloggerAPI.Controllers
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
 
-            return Ok(posts.Select(p => new PostResponseDto(
-                p.Id, p.Title, p.Content, p.Thumbnail,
-                p.Category?.Name ?? "", p.User?.Username ?? "", p.CreatedAt)));
+            return Ok(posts
+                .Select(p => new PostResponseDto
+                    (
+                        p.Id,
+                        p.CategoryId,
+                        p.UserId,
+                        p.Title,
+                        p.Content,
+                        p.Thumbnail,
+                        p.ImageContent,
+                        p.CreatedAt,
+                        0,
+                        new UserResponseDto
+                        {
+                            Id = p.User!.Id,
+                            Username = p.User.Username,
+                            FirstName = p.User.FirstName,
+                            LastName = p.User.LastName,
+                            Photo = p.User.Photo
+                        },
+                        new CategoryResponseDto(
+                            p.Category!.Id,
+                            p.Category.Name
+                        )
+                    )
+                )
+            );
         }
 
         //GET: api/Me/post/liked
@@ -123,13 +147,27 @@ namespace BloggerAPI.Controllers
             return Ok(posts
                 .Select(p => new PostResponseDto
                     (
-                        p.Id, 
-                        p.Title, 
-                        p.Content, 
-                        p.Thumbnail, 
-                        p.Category?.Name ?? "", 
-                        p.User?.Username ?? "", 
-                        p.CreatedAt
+                        p.Id,
+                        p.CategoryId,
+                        p.UserId,
+                        p.Title,
+                        p.Content,
+                        p.Thumbnail,
+                        p.ImageContent,
+                        p.CreatedAt,
+                        0,
+                        new UserResponseDto
+                        {
+                            Id = p.User!.Id,
+                            Username = p.User.Username,
+                            FirstName = p.User.FirstName,
+                            LastName = p.User.LastName,
+                            Photo = p.User.Photo
+                        },
+                        new CategoryResponseDto(
+                            p.Category!.Id,
+                            p.Category.Name
+                        )
                     )
                 )
             );

@@ -30,12 +30,25 @@ namespace BloggerAPI.Controllers
 
             var response = posts.Select(p => new PostResponseDto(
                 p.Id,
+                p.CategoryId,
+                p.UserId,
                 p.Title,
                 p.Content,
                 p.Thumbnail,
-                p.Category?.Name ?? "Uncategorized",
-                p.User?.Username ?? "Unknown",
-                p.CreatedAt
+                p.ImageContent,
+                p.CreatedAt, 
+                0,           
+                new UserResponseDto { 
+                    Id = p.User!.Id, 
+                    Username = p.User.Username, 
+                    FirstName = p.User.FirstName, 
+                    LastName = p.User.LastName, 
+                    Photo = p.User.Photo 
+                },
+                new CategoryResponseDto(
+                    p.Category!.Id, 
+                    p.Category.Name
+                ) 
             ));
 
             return Ok(response);
@@ -64,9 +77,28 @@ namespace BloggerAPI.Controllers
             // Re-fetch untuk mendapatkan navigation property (Category Name)
             var createdPost = await _postRepo.GetByIdAsync(post.Id);
 
-            return CreatedAtAction(nameof(GetPosts), new { id = post.Id }, new PostResponseDto(
-                createdPost!.Id, createdPost.Title, createdPost.Content, createdPost.Thumbnail,
-                createdPost.Category?.Name ?? "", createdPost.User?.Username ?? "", createdPost.CreatedAt
+            return CreatedAtAction(nameof(GetPosts), new { id = post.Id }, 
+                new PostResponseDto(
+                createdPost!.Id,
+                createdPost.CategoryId,
+                createdPost.UserId,
+                createdPost.Title,
+                createdPost.Content,
+                createdPost.Thumbnail,
+                createdPost.ImageContent,
+                createdPost.CreatedAt, 
+                0,           
+                new UserResponseDto { 
+                    Id = createdPost.User!.Id, 
+                    Username = createdPost.User.Username, 
+                    FirstName = createdPost.User.FirstName, 
+                    LastName = createdPost.User.LastName, 
+                    Photo = createdPost.User.Photo 
+                },
+                new CategoryResponseDto(
+                    createdPost.Category!.Id, 
+                    createdPost.Category.Name
+                    ) 
             ));
         }
 
