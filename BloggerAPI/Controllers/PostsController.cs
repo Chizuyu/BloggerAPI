@@ -95,5 +95,52 @@ namespace BloggerAPI.Controllers
 
             return Ok(new { thumbnail_url = post.Thumbnail });
         }
+
+        // GET /api/posts/{id}
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PostResponseDto>> GetById(Guid id)
+        {
+            var p = await _postRepo.GetByIdAsync(id);
+            if (p == null) return NotFound();
+
+            return Ok(new PostResponseDto(
+                p.Id, p.Title, p.Content, p.Thumbnail,
+                p.Category?.Name ?? "", p.User?.Username ?? "", p.CreatedAt
+            ));
+        }
+
+        // PUT /api/posts/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, PostUpdateDto dto)
+        {
+            var post = await _postRepo.GetByIdAsync(id);
+            if (post == null) return NotFound();
+
+            // Pastikan hanya pemilik yang bisa update
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (post.UserId != userId) return Forbid();
+
+            post.Title = dto.Title;
+            post.Content = dto.Content;
+            post.CategoryId = dto.CategoryId;
+            post.UpdatedAt = DateTime.UtcNow;
+
+            await _postRepo.UpdateAsync(post);
+            await _postRepo.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE /api/posts/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var post = await _postRepo.GetByIdAsync(id);
+            if (post == null) return NotFound();
+
+            await _postRepo.DeleteAsync(post);
+            await _postRepo.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
