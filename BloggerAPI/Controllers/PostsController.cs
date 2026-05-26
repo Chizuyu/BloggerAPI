@@ -17,10 +17,7 @@ namespace BloggerAPI.Controllers
     {
         private readonly IPostRepository _postRepo;
 
-        public PostsController(IPostRepository postRepo)
-        {
-            _postRepo = postRepo;
-        }
+        public PostsController(IPostRepository postRepo) => _postRepo = postRepo;
 
         [HttpGet]
         [AllowAnonymous]
@@ -28,34 +25,45 @@ namespace BloggerAPI.Controllers
         {
             var posts = await _postRepo.GetAllAsync(title, categoryId);
 
-            // Manual mapping seperti di AuthController kamu
             var response = posts.Select(p => new PostResponseDto(
-                p.Id, p.Title, p.Content, p.Thumbnail,
-                p.Category?.Name ?? "", p.User?.Username ?? "", p.CreatedAt
+                p.Id,
+                p.Title,
+                p.Content,
+                p.Thumbnail,
+                p.Category?.Name ?? "Uncategorized",
+                p.User?.Username ?? "Unknown",
+                p.CreatedAt
             ));
 
             return Ok(response);
         }
 
         [HttpPost]
-        public async Task<ActionResult<PostResponseDto>> Create(PostRequestDto dto)
+        public async Task<ActionResult<PostResponseDto>> Create(PostCreateDto dto)
         {
-            // Cara mengambil ID User dari JWT Token (seperti di AuthController kamu)
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) return Unauthorized();
 
             var post = new Post
             {
+                Id = Guid.NewGuid(),
                 Title = dto.Title,
                 Content = dto.Content,
                 CategoryId = dto.CategoryId,
-                UserId = Guid.Parse(userIdClaim)
+                UserId = Guid.Parse(userIdClaim),
+                CreatedAt = DateTime.UtcNow
             };
 
             await _postRepo.CreateAsync(post);
             await _postRepo.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetPosts), new { id = post.Id }, post);
+            // Re-fetch untuk mendapatkan navigation property (Category Name)
+            var createdPost = await _postRepo.GetByIdAsync(post.Id);
+
+            return CreatedAtAction(nameof(GetPosts), new { id = post.Id }, new PostResponseDto(
+                createdPost!.Id, createdPost.Title, createdPost.Content, createdPost.Thumbnail,
+                createdPost.Category?.Name ?? "", createdPost.User?.Username ?? "", createdPost.CreatedAt
+            ));
         }
     }
 }
