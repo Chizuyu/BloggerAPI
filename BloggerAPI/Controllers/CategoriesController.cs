@@ -34,6 +34,7 @@ namespace BloggerAPI.Controllers
         {
             var category = new Models.Category
             {
+                Id = Guid.NewGuid(),
                 Name = categoryDto.Name
             };
             _context.Categories.Add(category);
@@ -45,9 +46,9 @@ namespace BloggerAPI.Controllers
             return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, categoryDto);
         }
 
-        //Put: api/Categories/{id}
+        //PUT: api/Categories/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
+        public async Task<IActionResult> PutCategory(Guid id, CategoryDto categoryDto)
         {
             if (id != categoryDto.Id)
             {
@@ -84,7 +85,7 @@ namespace BloggerAPI.Controllers
 
         //DELETE: api/Categories/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
