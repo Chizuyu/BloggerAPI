@@ -5,6 +5,7 @@ namespace BloggerAPI.DTOs
         public Guid Id { get; set; }
         public string Name { get; set; }
     }
+
     public record CategoryResponseDto(
         Guid Id,
         string? Name
