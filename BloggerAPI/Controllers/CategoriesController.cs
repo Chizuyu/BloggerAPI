@@ -1,6 +1,7 @@
 using BloggerAPI.Data;
 using BloggerAPI.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BloggerAPI.Controllers
 {
@@ -36,12 +37,49 @@ namespace BloggerAPI.Controllers
                 Name = categoryDto.Name
             };
             _context.Categories.Add(category);
-            await _context.UpdateDatabase();
+            await _context.SaveChangesAsync();
 
             await _context.SaveChangesAsync();
 
             categoryDto.Id = category.Id;
             return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, categoryDto);
+        }
+
+        //Put: api/Categories/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCategory(int id, CategoryDto categoryDto)
+        {
+            if (id != categoryDto.Id)
+            {
+                return BadRequest("ID tidak cocok");
+            }
+
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            category.Name = categoryDto.Name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Categories.Any(c => c.Id == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
     }
 }
