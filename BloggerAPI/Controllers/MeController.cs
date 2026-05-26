@@ -24,7 +24,6 @@ namespace BloggerAPI.Controllers
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var user = await _context.Users.FindAsync(userId);
-
             if (user == null) return NotFound();
 
             return Ok(new UserResponseDto
@@ -33,9 +32,9 @@ namespace BloggerAPI.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Username = user.Username,
+                Photo = GetFileNameOnly(user.Photo), // Gunakan Helper
                 DateOfBirth = user.DateOfBirth,
-                JoinDate = user.JoinDate,
-                Photo = user.Photo
+                JoinDate = user.JoinDate
             });
         }
 
@@ -183,5 +182,9 @@ namespace BloggerAPI.Controllers
 
             return Ok(new { is_liked = isLiked });
         }
+
+        [NonAction]
+        private string? GetFileNameOnly(string? path) =>
+        string.IsNullOrEmpty(path) ? path : Path.GetFileName(path);
     }
 }
