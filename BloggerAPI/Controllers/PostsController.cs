@@ -134,7 +134,10 @@ namespace BloggerAPI.Controllers
                     LastName = p.User.LastName,
                     Photo = p.User.Photo
                 },
-                new CategoryResponseDto { Id = p.Category!.Id, Name = p.Category.Name }
+                new CategoryResponseDto(
+                    p.Category!.Id,
+                    p.Category.Name
+                )
             ));
         }
 
