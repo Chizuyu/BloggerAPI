@@ -1,4 +1,5 @@
 using BloggerAPI.Data;
+using BloggerAPI.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +46,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+
 // AUTHENTICATION SETUP
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.ASCII.GetBytes(jwtSettings["Key"] ?? "KeyRahasiaDefaultYangSangatPanjang123!");
@@ -82,6 +85,7 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseStaticFiles(); 
 app.UseAuthorization();
 app.MapControllers();
 
