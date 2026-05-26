@@ -28,29 +28,32 @@ namespace BloggerAPI.Controllers
         {
             var posts = await _postRepo.GetAllAsync(title, categoryId);
 
-            var response = posts.Select(p => new PostResponseDto(
-                p.Id,
-                p.CategoryId,
-                p.UserId,
-                p.Title,
-                p.Content,
-                p.Thumbnail,
-                p.ImageContent,
-                p.CreatedAt, 
-                0,           
-                new UserResponseDto { 
-                    Id = p.User!.Id, 
-                    Username = p.User.Username, 
-                    FirstName = p.User.FirstName, 
-                    LastName = p.User.LastName, 
-                    Photo = p.User.Photo 
-                },
-                new CategoryResponseDto(
-                    p.Category!.Id, 
-                    p.Category.Name
-                ) 
-            ));
-
+            var response = new List<PostResponseDto>();
+            foreach (var p in posts)
+            {
+                var count = await _postRepo.GetLikeCountAsync(p.Id); 
+                response.Add(new PostResponseDto(
+                    p.Id, p.CategoryId, 
+                    p.UserId, 
+                    p.Title, 
+                    p.Content,
+                    GetFileNameOnly(p.Thumbnail),    
+                    GetFileNameOnly(p.ImageContent), 
+                    p.CreatedAt,
+                    count,
+                    new UserResponseDto
+                    {
+                        Id = p.User!.Id,
+                        Username = p.User.Username,
+                        FirstName = p.User.FirstName,
+                        LastName = p.User.LastName,
+                        Photo = GetFileNameOnly(p.User.Photo), 
+                        DateOfBirth = p.User.DateOfBirth,
+                        JoinDate = p.User.JoinDate
+                    },
+                    new CategoryResponseDto(p.Category!.Id, p.Category.Name)
+                ));
+            }
             return Ok(response);
         }
 
@@ -121,23 +124,27 @@ namespace BloggerAPI.Controllers
 
             var likeCount = await _postRepo.GetLikeCountAsync(p.Id);
 
-            // Mapping agar persis seperti yang diminta Android
             return Ok(new PostResponseDto(
-                p.Id, p.CategoryId, p.UserId, p.Title, p.Content, p.Thumbnail, p.ImageContent,
-                p.CreatedAt, // Mapping ke 'Date'
+                p.Id, 
+                p.CategoryId, 
+                p.UserId, 
+                p.Title, 
+                p.Content,
+                GetFileNameOnly(p.Thumbnail),
+                GetFileNameOnly(p.ImageContent),
+                p.CreatedAt,
                 likeCount,
                 new UserResponseDto
-                { // Mapping ke objek 'User'
+                {
                     Id = p.User!.Id,
                     Username = p.User.Username,
                     FirstName = p.User.FirstName,
                     LastName = p.User.LastName,
-                    Photo = p.User.Photo
+                    Photo = GetFileNameOnly(p.User.Photo), 
+                    DateOfBirth = p.User.DateOfBirth,
+                    JoinDate = p.User.JoinDate
                 },
-                new CategoryResponseDto(
-                    p.Category!.Id,
-                    p.Category.Name
-                )
+                new CategoryResponseDto(p.Category!.Id, p.Category.Name)
             ));
         }
 
@@ -148,7 +155,6 @@ namespace BloggerAPI.Controllers
             var post = await _postRepo.GetByIdAsync(id);
             if (post == null) return NotFound();
 
-            // Pastikan hanya pemilik yang bisa update
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             if (post.UserId != userId) return Forbid();
 
@@ -169,9 +175,8 @@ namespace BloggerAPI.Controllers
             var post = await _postRepo.GetByIdAsync(id);
             if (post == null) return NotFound();
 
-            // PROTEKSI: Cek apakah yang menghapus adalah pemiliknya
             var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (post.UserId != currentUserId) return Forbid(); // Android akan terima error 403
+            if (post.UserId != currentUserId) return Forbid(); 
 
             await _postRepo.DeleteAsync(post);
             await _postRepo.SaveChangesAsync();
@@ -185,7 +190,6 @@ namespace BloggerAPI.Controllers
             var post = await _postRepo.GetByIdAsync(postId);
             if (post == null) return NotFound("Post tidak ditemukan");
 
-            // Validasi file (Opsional tapi disarankan)
             if (file == null || file.Length == 0) return BadRequest("File tidak valid");
 
             var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/thumbnails");
@@ -202,9 +206,10 @@ namespace BloggerAPI.Controllers
             post.Thumbnail = $"/uploads/thumbnails/{fileName}";
             await _postRepo.SaveChangesAsync();
 
-            return Ok(new { thumbnail_url = post.Thumbnail });
+            return Ok(new { thumbnail_url = GetFileNameOnly(post.Thumbnail) });
         }
 
+        //POST: 
         [HttpPost("{postId}/image")]
         [Consumes("multipart/form-data")] 
         public async Task<IActionResult> UploadImageContent(Guid postId, [FromForm] PostImageUploadDto dto)
@@ -230,7 +235,7 @@ namespace BloggerAPI.Controllers
             post.ImageContent = $"/uploads/posts/{fileName}";
             await _postRepo.SaveChangesAsync();
 
-            return Ok(new { url = post.ImageContent });
+            return Ok(new { url = GetFileNameOnly(post.ImageContent) });
         }
 
         // POST /api/posts/like
@@ -242,6 +247,13 @@ namespace BloggerAPI.Controllers
             await _postRepo.SaveChangesAsync();
 
             return Ok(new { liked = isLiked });
+        }
+
+        [NonAction]
+        private string? GetFileNameOnly(string? path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+            return Path.GetFileName(path); 
         }
     }
 }
