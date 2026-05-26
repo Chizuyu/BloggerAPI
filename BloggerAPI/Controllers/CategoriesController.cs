@@ -28,6 +28,27 @@ namespace BloggerAPI.Controllers
                 }).ToListAsync();
         }
 
+        // GET: api/Categories/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CategoryDto>> GetCategory(Guid id)
+        {
+            var category = await _context.Categories
+                .Where(c => c.Id == id)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                }).SingleOrDefaultAsync();
+
+            if (category == null)
+            {
+                return NotFound(new { message = "Category tidak ditemukan" });
+            }
+
+            return Ok(category);
+        }
+
+
         //POST: api/Categories
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto categoryDto)
