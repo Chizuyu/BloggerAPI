@@ -89,5 +89,49 @@ namespace BloggerAPI.Controllers
 
             return Ok(new { photo_url = user.Photo });
         }
+
+        //GET: api/Me/post
+        [HttpGet("post")]
+        public async Task<ActionResult<IEnumerable<PostResponseDto>>> GetMyPosts()
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var posts = await _context.Posts
+                .Include(p => p.Category)
+                .Include(p => p.User)
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            return Ok(posts.Select(p => new PostResponseDto(
+                p.Id, p.Title, p.Content, p.Thumbnail,
+                p.Category?.Name ?? "", p.User?.Username ?? "", p.CreatedAt)));
+        }
+
+        //GET: api/Me/post/liked
+        [HttpGet("post/liked")]
+        public async Task<ActionResult<IEnumerable<PostResponseDto>>> GetLikedPosts()
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            // Query post yang disukai user ini menggunakan tabel PostLike
+            var posts = await _context.Posts
+                .Include(p => p.Category)
+                .Include(p => p.User)
+                .Where(p => p.Likes.Any(l => l.UserId == userId))
+                .ToListAsync();
+
+            return Ok(posts
+                .Select(p => new PostResponseDto
+                    (
+                        p.Id, 
+                        p.Title, 
+                        p.Content, 
+                        p.Thumbnail, 
+                        p.Category?.Name ?? "", 
+                        p.User?.Username ?? "", 
+                        p.CreatedAt
+                    )
+                )
+            );
+        }
     }
 }
