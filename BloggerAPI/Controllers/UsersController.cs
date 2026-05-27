@@ -18,20 +18,27 @@ namespace BloggerAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers([FromQuery] string? name)
         {
-            return await _context.Users
-                .Select(u => new UserResponseDto
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Username = u.Username,
-                    Password = null,
-                    DateOfBirth = u.DateOfBirth,
-                    JoinDate = u.JoinDate,
-                    Photo = Path.GetFileName(u.Photo)
-                }).ToListAsync();
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(u => u.FirstName.Contains(name)
+                                      || u.LastName.Contains(name)
+                                      || u.Username.Contains(name));
+            }
+
+            var users = await query.ToListAsync();
+
+            return Ok(users.Select(u => new UserResponseDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Photo = Path.GetFileName(u.Photo), // Sesuai spek Legacy
+                Password = ""
+            }));
         }
 
         //GET: api/Users/{id}
