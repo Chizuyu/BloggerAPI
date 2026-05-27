@@ -24,9 +24,10 @@ namespace BloggerAPI.Controllers
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                query = query.Where(u => u.FirstName.Contains(name)
-                                      || u.LastName.Contains(name)
-                                      || u.Username.Contains(name));
+                query = query.Where(u =>
+                    u.Username.Contains(name) ||
+                    u.FirstName.Contains(name) ||
+                    u.LastName.Contains(name));
             }
 
             var users = await query.ToListAsync();
