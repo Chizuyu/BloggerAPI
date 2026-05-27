@@ -16,6 +16,7 @@ namespace BloggerAPI.Controllers
         private readonly IPostRepository _postRepo;
         public CommentsController(IPostRepository postRepo) => _postRepo = postRepo;
 
+        //GET: api/posts/{postsId}/comments
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<CommentResponseDto>>> GetComments(Guid postId)
@@ -35,6 +36,7 @@ namespace BloggerAPI.Controllers
             )));
         }
 
+        //POST: api/posts/{postsId}/comments
         [HttpPost]
         public async Task<IActionResult> PostComment(Guid postId, CommentCreateDto dto)
         {
@@ -50,6 +52,26 @@ namespace BloggerAPI.Controllers
             await _postRepo.CreateCommentAsync(comment);
             await _postRepo.SaveChangesAsync();
             return Ok();
+        }
+
+        //DELETE: api/posts/{postsId}/comments
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteComment(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var comment = await _postRepo.GetCommentByIdAsync(id);
+            if (comment == null) return NotFound("Komentar tidak ditemukan");
+
+            if (comment.UserId != userId)
+            {
+                return Forbid();
+            }
+
+            await _postRepo.DeleteCommentAsync(comment);
+            await _postRepo.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

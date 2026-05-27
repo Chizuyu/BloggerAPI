@@ -176,7 +176,9 @@ namespace BloggerAPI.Controllers
             if (post == null) return NotFound();
 
             var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (post.UserId != currentUserId) return Forbid(); 
+            if (
+                post.UserId != currentUserId
+                ) return Forbid(); 
 
             await _postRepo.DeleteAsync(post);
             await _postRepo.SaveChangesAsync();
