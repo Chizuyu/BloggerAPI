@@ -17,7 +17,11 @@ namespace BloggerAPI.Controllers
     {
         private readonly ApiDbContext _context;
         private readonly IPostRepository _postRepo;
-        public CommentsController(IPostRepository postRepo) => _postRepo = postRepo;
+        public CommentsController(IPostRepository postRepo, ApiDbContext context)
+        {
+            _postRepo = postRepo;
+            _context = context; 
+        }
 
         //GET: api/posts/{postsId}/comments
         [HttpGet]
