@@ -180,7 +180,7 @@ namespace BloggerAPI.Controllers
             var isLiked = await _context.Set<PostLike>()
                 .AnyAsync(l => l.PostId == postId && l.UserId == userId);
 
-            return Ok(new { is_liked = isLiked });
+            return Ok(new { isLiked = isLiked });
         }
 
         [NonAction]

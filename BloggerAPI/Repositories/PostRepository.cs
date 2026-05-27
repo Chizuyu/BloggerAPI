@@ -59,5 +59,16 @@ namespace BloggerAPI.Repositories
         public async Task UpdateAsync(Post post) => _context.Posts.Update(post);
         public async Task DeleteAsync(Post post) => _context.Posts.Remove(post);
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+
+        public async Task<IEnumerable<Comment>> GetCommentsByPostIdAsync(Guid postId) =>
+        await _context.Comments
+            .Include(c => c.User)
+            .Where(c => c.PostId == postId)
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+
+        public async Task CreateCommentAsync(Comment comment) => await _context.Comments.AddAsync(comment);
+        public async Task<Comment?> GetCommentByIdAsync(Guid id) => await _context.Comments.FindAsync(id);
+        public async Task DeleteCommentAsync(Comment comment) => _context.Comments.Remove(comment);
     }
 }

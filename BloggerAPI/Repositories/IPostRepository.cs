@@ -12,5 +12,10 @@ namespace BloggerAPI.Repositories
         Task SaveChangesAsync();
         Task<int> GetLikeCountAsync(Guid postId);
         Task<bool> ToggleLikeAsync(Guid postId, Guid userId);
+
+        Task<IEnumerable<Comment>> GetCommentsByPostIdAsync(Guid postId);
+        Task CreateCommentAsync(Comment comment);
+        Task<Comment?> GetCommentByIdAsync(Guid id);
+        Task DeleteCommentAsync(Comment comment);
     }
 }
