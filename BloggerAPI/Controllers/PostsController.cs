@@ -1,3 +1,4 @@
+using BloggerAPI.Data;
 using BloggerAPI.DTOs;
 using BloggerAPI.DTOs;
 using BloggerAPI.DTOs.Auth;
@@ -7,6 +8,7 @@ using BloggerAPI.Repositories;
 using BloggerAPI.Repositories;  
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BloggerAPI.Controllers
@@ -16,9 +18,14 @@ namespace BloggerAPI.Controllers
     [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
+        private readonly ApiDbContext _context;
         private readonly IPostRepository _postRepo;
 
-        public PostsController(IPostRepository postRepo) => _postRepo = postRepo;
+        public PostsController(ApiDbContext context, IPostRepository postRepo)
+        {
+            _context = context;
+            _postRepo = postRepo;
+        }
 
 
         //GET: 
@@ -258,6 +265,31 @@ namespace BloggerAPI.Controllers
             await _postRepo.SaveChangesAsync();
 
             return Ok(new { liked = isLiked });
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Post>>> SearchPosts([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await GetPosts(); 
+            }
+
+            var posts = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .Where(p => p.Title.Contains(query) || p.Content.Contains(query))
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            posts.ForEach(p => {
+                p.Thumbnail = Path.GetFileName(p.Thumbnail);
+                p.ImageContent = Path.GetFileName(p.ImageContent);
+                if (p.User != null) p.User.Photo = Path.GetFileName(p.User.Photo);
+                if (p.User != null) p.User.PasswordHash = ""; 
+            });
+
+            return posts;
         }
 
         [NonAction]
