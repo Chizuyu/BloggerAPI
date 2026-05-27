@@ -1,9 +1,11 @@
+using BloggerAPI.Data;
 using BloggerAPI.DTOs;
 using BloggerAPI.DTOs.Auth;
 using BloggerAPI.Entities;
 using BloggerAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BloggerAPI.Controllers
@@ -13,6 +15,7 @@ namespace BloggerAPI.Controllers
     [Route("api/posts/{postId}/comments")]
     public class CommentsController : ControllerBase
     {
+        private readonly ApiDbContext _context;
         private readonly IPostRepository _postRepo;
         public CommentsController(IPostRepository postRepo) => _postRepo = postRepo;
 
@@ -60,16 +63,22 @@ namespace BloggerAPI.Controllers
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var comment = await _postRepo.GetCommentByIdAsync(id);
+            var comment = await _context.Comments
+                .Include(c => c.Post) 
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (comment == null) return NotFound("Komentar tidak ditemukan");
 
-            if (comment.UserId != userId)
+            bool isCommentOwner = comment.UserId == userId;
+            bool isPostOwner = comment.Post?.UserId == userId;
+
+            if (!isCommentOwner && !isPostOwner)
             {
-                return Forbid();
+                return Forbid("Anda tidak memiliki hak untuk menghapus komentar ini.");
             }
 
-            await _postRepo.DeleteCommentAsync(comment);
-            await _postRepo.SaveChangesAsync();
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
