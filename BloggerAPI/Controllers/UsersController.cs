@@ -27,7 +27,8 @@ namespace BloggerAPI.Controllers
                 query = query.Where(u =>
                     u.Username.Contains(name) ||
                     u.FirstName.Contains(name) ||
-                    u.LastName.Contains(name));
+                    u.LastName.Contains(name) ||
+                    (u.FirstName + " " + u.LastName).Contains(name));
             }
 
             var users = await query.ToListAsync();
