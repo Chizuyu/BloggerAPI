@@ -38,6 +38,9 @@ namespace BloggerAPI.Controllers
                 Id = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                Username = u.Username,
+                DateOfBirth = u.DateOfBirth,
+                JoinDate = u.JoinDate,
                 Photo = Path.GetFileName(u.Photo), // Sesuai spek Legacy
                 Password = ""
             }));
