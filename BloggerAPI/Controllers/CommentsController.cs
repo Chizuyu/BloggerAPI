@@ -22,8 +22,16 @@ namespace BloggerAPI.Controllers
         {
             var comments = await _postRepo.GetCommentsByPostIdAsync(postId);
             return Ok(comments.Select(c => new CommentResponseDto(
-                c.Id, c.Content, c.CreatedAt,
-                new UserResponseDto { Id = c.User!.Id, Username = c.User.Username, FirstName = c.User.FirstName, Photo = Path.GetFileName(c.User.Photo) }
+                c.Id, 
+                c.Content, 
+                c.CreatedAt,
+                new UserResponseDto { 
+                    Id = c.User!.Id, 
+                    Username = c.User.Username, 
+                    FirstName = c.User.FirstName,
+                    LastName = c.User.LastName,
+                    Photo = Path.GetFileName(c.User.Photo) 
+                }
             )));
         }
 
