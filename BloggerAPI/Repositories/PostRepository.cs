@@ -16,17 +16,21 @@ namespace BloggerAPI.Repositories
         public async Task<IEnumerable<Post>> GetAllAsync(string? title, Guid? categoryId)
         {
             var query = _context.Posts
-                .Include(p => p.Category)
                 .Include(p => p.User)
+                .Include(p => p.Category)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(title))
-                query = query.Where(p => p.Title.Contains(title));
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                query = query.Where(p => p.Title.Contains(title) || p.Content.Contains(title));
+            }
 
             if (categoryId.HasValue)
-                query = query.Where(p => p.CategoryId == categoryId);
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
 
-            return await query.ToListAsync();
+            return await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
         }
 
         public async Task<Post?> GetByIdAsync(Guid id)
@@ -70,5 +74,7 @@ namespace BloggerAPI.Repositories
         public async Task CreateCommentAsync(Comment comment) => await _context.Comments.AddAsync(comment);
         public async Task<Comment?> GetCommentByIdAsync(Guid id) => await _context.Comments.FindAsync(id);
         public async Task DeleteCommentAsync(Comment comment) => _context.Comments.Remove(comment);
+
+
     }
 }
