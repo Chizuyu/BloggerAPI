@@ -15,6 +15,7 @@ namespace BloggerAPI.Data
 
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Comment> Comments => Set<Comment>();
+        public DbSet<Follow> Follows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +26,10 @@ namespace BloggerAPI.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Follow>()
-                .HasKey(f => new { f.FollowerId, f.FollowingId });
+                .HasKey(f => new { 
+                    f.FollowerId, 
+                    f.FollowingId 
+                });
 
             modelBuilder.Entity<Follow>()
                 .HasOne(f => f.Follower)
