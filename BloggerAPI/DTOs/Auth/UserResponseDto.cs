@@ -12,5 +12,8 @@ namespace BloggerAPI.DTOs.Auth
         public string? Photo { get; set; }
 
         public bool IsFollowing { get; set; }
+
+        public int FollowersCount { get; set; }
+        public int FollowingCount { get; set; }
     }
 }
