@@ -23,6 +23,10 @@ namespace BloggerAPI.Controllers
         public async Task<ActionResult<UserResponseDto>> GetMe()
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var followersCount = await _context.Follows.CountAsync(f => f.FollowingId == userId);
+            var followingCount = await _context.Follows.CountAsync(f => f.FollowerId == userId);
+
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return NotFound();
 
@@ -32,9 +36,11 @@ namespace BloggerAPI.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Username = user.Username,
-                Photo = GetFileNameOnly(user.Photo), // Gunakan Helper
+                Photo = GetFileNameOnly(user.Photo), 
                 DateOfBirth = user.DateOfBirth,
-                JoinDate = user.JoinDate
+                JoinDate = user.JoinDate,
+                FollowersCount = followersCount,
+                FollowingCount = followingCount
             });
         }
 
