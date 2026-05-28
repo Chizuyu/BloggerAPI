@@ -3,14 +3,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BloggerAPI.DTOs
 {
-    public record PostCreateDto(string Title, string Content, Guid CategoryId);
-    public record PostUpdateDto(string Title, string Content, Guid CategoryId);
+    public record PostCreateDto(
+        string Title, 
+        string Content, 
+        Guid CategoryId
+    );
+
+    public record PostUpdateDto(
+        string Title, 
+        string Content, 
+        Guid CategoryId
+    );
 
     public record PostRequestDto(
        [Required] string Title,
        [Required] string Content,
        [Required] Guid CategoryId
-   );
+    );
 
     public record PostResponseDto(
         Guid Id,

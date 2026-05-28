@@ -192,59 +192,47 @@ namespace BloggerAPI.Controllers
             return NoContent();
         }
 
-        //POST: 
         [HttpPost("{postId}/thumbnail")]
         public async Task<IActionResult> UploadThumbnail(Guid postId, IFormFile file)
         {
+            return await ProcessFileUpload(postId, file, "thumbnail");
+        }
+
+        [HttpPost("{postId}/image")]
+        public async Task<IActionResult> UploadImageContent(Guid postId, IFormFile file)
+        {
+            return await ProcessFileUpload(postId, file, "imageContent");
+        }
+
+        private async Task<IActionResult> ProcessFileUpload(Guid postId, IFormFile file, string type)
+        {
+            if (file == null || file.Length == 0) return BadRequest("File is empty");
+
             var post = await _postRepo.GetByIdAsync(postId);
-            if (post == null) return NotFound("Post tidak ditemukan");
+            if (post == null) return NotFound();
 
-            if (file == null || file.Length == 0) return BadRequest("File tidak valid");
+            // Pastikan folder tersedia
+            var folder = type == "thumbnail" ? "thumbnails" : "posts";
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folder);
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/thumbnails");
-            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
+            // Generate nama file unik
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(folderPath, fileName);
+            var filePath = Path.Combine(uploadsFolder, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            post.Thumbnail = $"/uploads/thumbnails/{fileName}";
+            // Update Field di Database
+            if (type == "thumbnail") post.Thumbnail = fileName;
+            else post.ImageContent = fileName;
+
+            await _postRepo.UpdateAsync(post);
             await _postRepo.SaveChangesAsync();
 
-            return Ok(new { thumbnail_url = GetFileNameOnly(post.Thumbnail) });
-        }
-
-        //POST: 
-        [HttpPost("{postId}/image")]
-        [Consumes("multipart/form-data")] 
-        public async Task<IActionResult> UploadImageContent(Guid postId, [FromForm] PostImageUploadDto dto)
-        {
-            var photo = dto.Photo;
-
-            var post = await _postRepo.GetByIdAsync(postId);
-            if (post == null) return NotFound("Post tidak ditemukan");
-
-            if (photo == null || photo.Length == 0) return BadRequest("File 'photo' kosong");
-
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/posts");
-            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
-            var filePath = Path.Combine(folderPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
-
-            post.ImageContent = $"/uploads/posts/{fileName}";
-            await _postRepo.SaveChangesAsync();
-
-            return Ok(new { url = GetFileNameOnly(post.ImageContent) });
+            return Ok(new { message = "Upload success", fileName });
         }
 
         // POST /api/posts/like
