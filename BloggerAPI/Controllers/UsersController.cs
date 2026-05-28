@@ -53,11 +53,14 @@ namespace BloggerAPI.Controllers
         {
             var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(claim)) return Unauthorized();
-            var currentUserId = Guid.Parse(claim);
+            var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var followersCount = await _context.Follows.CountAsync(f => f.FollowingId == id);
+            var followingCount = await _context.Follows.CountAsync(f => f.FollowerId == id);
 
             var isFollowing = await _context.Follows
                 .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == id);
-
+            
             var user = await _context.Users
                 .Where(u => u.Id == id)
                 .Select(u => new UserResponseDto
@@ -70,7 +73,9 @@ namespace BloggerAPI.Controllers
                     DateOfBirth = u.DateOfBirth,
                     JoinDate = u.JoinDate,
                     Photo = Path.GetFileName(u.Photo),
-                    IsFollowing = isFollowing
+                    IsFollowing = isFollowing,
+                    FollowersCount = followersCount,
+                    FollowingCount = followingCount
                 })
                 .SingleOrDefaultAsync();
 
