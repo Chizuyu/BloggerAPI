@@ -22,7 +22,22 @@ namespace BloggerAPI.Data
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Posts)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Follow>()
+                .HasKey(f => new { f.FollowerId, f.FollowingId });
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.Follower)
+                .WithMany() 
+                .HasForeignKey(f => f.FollowerId)
                 .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.Following)
+                .WithMany() 
+                .HasForeignKey(f => f.FollowingId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
