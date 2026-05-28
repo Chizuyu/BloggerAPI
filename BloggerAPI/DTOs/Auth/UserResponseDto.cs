@@ -10,5 +10,7 @@ namespace BloggerAPI.DTOs.Auth
         public DateTime? DateOfBirth { get; set; }
         public DateTime JoinDate { get; set; }
         public string? Photo { get; set; }
+
+        public bool IsFollowing { get; set; }
     }
 }

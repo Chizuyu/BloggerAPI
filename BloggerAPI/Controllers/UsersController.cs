@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 using BloggerAPI.Data;
 using BloggerAPI.DTOs.Auth;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BloggerAPI.Controllers
 {
@@ -50,6 +51,13 @@ namespace BloggerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserResponseDto>> GetUser(Guid id)
         {
+            var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(claim)) return Unauthorized();
+            var currentUserId = Guid.Parse(claim);
+
+            var isFollowing = await _context.Follows
+                .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == id);
+
             var user = await _context.Users
                 .Where(u => u.Id == id)
                 .Select(u => new UserResponseDto
@@ -58,17 +66,15 @@ namespace BloggerAPI.Controllers
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     Username = u.Username,
-                    Password = null,
+                    Password = "", 
                     DateOfBirth = u.DateOfBirth,
                     JoinDate = u.JoinDate,
-                    Photo = Path.GetFileName(u.Photo)
+                    Photo = Path.GetFileName(u.Photo),
+                    IsFollowing = isFollowing
                 })
                 .SingleOrDefaultAsync();
 
-            if (user == null)
-            {
-                return NotFound(new { message = "User tidak ditemukan" });
-            }
+            if (user == null) return NotFound(new { message = "User tidak ditemukan" });
 
             return Ok(user);
         }
