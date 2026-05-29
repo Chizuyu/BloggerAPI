@@ -196,7 +196,7 @@ namespace BloggerAPI.Controllers
         public async Task<IActionResult> UploadThumbnail(Guid postId, IFormFile file)
         {
             return await ProcessFileUpload(postId, file, "thumbnail");
-        }
+        } 
 
         [HttpPost("{postId}/image")]
         public async Task<IActionResult> UploadImageContent(Guid postId, IFormFile file)
