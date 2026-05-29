@@ -1,11 +1,8 @@
 using BloggerAPI.Data;
 using BloggerAPI.DTOs;
-using BloggerAPI.DTOs;
 using BloggerAPI.DTOs.Auth;
 using BloggerAPI.Entities;
-using BloggerAPI.Entities;      
 using BloggerAPI.Repositories;
-using BloggerAPI.Repositories;  
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
