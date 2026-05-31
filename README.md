@@ -40,6 +40,7 @@ API ini dikonfigurasi secara khusus agar mendukung integrasi dengan aplikasi And
 | **Post** | Id, Title, Content, Thumbnail, ImageContent, CreatedAt, UpdatedAt, UserId, CategoryId |
 | **PostLike** | PostId, UserId (Many-to-Many Relation) |
 | **Comment** | Id, Content, CreatedAt, PostId, UserId |
+| **Follow** | FollowerId, Follower, FollowingId, Following, FollowedAt |
 
 ## Getting Started
 
