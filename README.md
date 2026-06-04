@@ -21,6 +21,9 @@ BloggerAPI adalah backend service berbasis **ASP.NET Core .NET 10** yang diranca
 - **File Uploads:** System upload Thumbnail, Post Images, dan User Photo ke server lokal.
 - **Like Logic:** Fitur toggle like dengan validasi (User tidak bisa menyukai postingan sendiri).
 - **Profile & Me:** Endpoint khusus untuk mengelola data user yang sedang login.
+- **Advanced Following System:** Relasi *Self-Referencing* pada tabel `Follows`. Mendukung fitur Follow/Unfollow, daftar pengikut, dan statistik profil (Followers/Following count).
+- **Comment Moderation:** Logika kepemilikan ganda; pemilik komentar bisa menghapus komentarnya sendiri, dan pemilik postingan (Owner) memiliki otoritas untuk menghapus komentar apa pun di postingannya.
+- **Unified Search Engine:** Endpoint pencarian yang dioptimalkan untuk mendukung *Debounced Search* pada Android (mendukung filter Judul & Kategori).
 
 ## Legacy Compatibility (Android Integration)
 
