@@ -1,6 +1,6 @@
 # BloggerAPI - Backend
 
-BloggerAPI adalah backend service berbasis **ASP.NET Core .NET 10** yang dirancang sebagai bagian dari "Hero Project". Project ini bertujuan untuk melakukan *Reverse Engineering* / *Cloning* terhadap API LKS Wilayah lama agar kompatibel dengan aplikasi Android yang sudah ada, namun dibangun dengan standar industri modern.
+BloggerAPI adalah backend service berbasis **ASP.NET Core .NET 10** yang dirancang sebagai bagian dari [Blogger](https://github.com/Chizuyu/Blogger). Project ini bertujuan untuk melakukan *Reverse Engineering* / *Cloning* terhadap API LKS Wilayah lama agar kompatibel dengan aplikasi Android yang sudah ada, namun dibangun dengan standar industri modern.
 
 ## Tech Stack & Architecture
 
