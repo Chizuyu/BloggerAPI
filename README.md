@@ -50,3 +50,10 @@ API ini dikonfigurasi secara khusus agar mendukung integrasi dengan aplikasi And
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Chizuyu/BloggerAPI.git
+   ```
+## Documentation
+
+<img width="1900" height="918" alt="Screenshot 2026-09-21 110836" src="https://github.com/user-attachments/assets/6e6e5ecf-eb99-4e12-857b-9dac275fc982" />
+<img width="1897" height="1045" alt="Screenshot 2026-09-21 110826" src="https://github.com/user-attachments/assets/c5d41446-8af5-4d80-9069-1813f00db938" />
+<img width="1901" height="925" alt="Screenshot 2026-09-21 110816" src="https://github.com/user-attachments/assets/e03c0e87-66d9-4165-bda3-1604ba14a0ea" />
+
